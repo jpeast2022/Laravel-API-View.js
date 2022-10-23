@@ -35,10 +35,16 @@
             data: [],
             showLogin: true,
             showRegister: false,
-            showTask: true
+            showTask: true, 
           }
       },
+      mounted(){
+        this.tokenCheck()
+      },
       methods: {
+        reloadPage() {
+            window.location.reload();
+          },
         toogleLoginPage(){
           this.showLogin = !this.showLogin,
           this.showRegister = false
@@ -60,11 +66,23 @@
           const Token = await res.json()
           console.log(Token)
           console.log(Token.data.token)
-          localStorage.setItem('Bearer-Token',Token.data.token)
+          localStorage.setItem('Bearer-Token',JSON.stringify(Token.data))
+          // var a = JSON.parse(localStorage.getItem('Bearer-Token'))
+          // console.log(a.user.name)
           this.showLogin = false
+          this.reloadPage()
           // console.log(data)
         },
-       
+        tokenCheck(){
+          let a = JSON.parse(localStorage.getItem('Bearer-Token'))
+          console.log(a)
+          if(a === null){
+              this.showLogin = true
+              console.log('yhdjwahdjwa')
+          }else{
+              this.showLogin = false
+          }
+        }
       }
     }
 </script>

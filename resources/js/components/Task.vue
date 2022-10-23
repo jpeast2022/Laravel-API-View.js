@@ -1,5 +1,5 @@
 <template>
-    <div class="contain">
+    <div class="contain" v-if='TokenData'>
         <div class="row">
             <div class="col-md-4" style="margin:10px auto">
                 <div class="card overflow-auto"  style="height: 550px">
@@ -41,13 +41,23 @@
                 </div>
         </div>  
     </div>
+    <div class="container" v-else>
+        <div class="row d-flex justify-content-center mt-5">
+            <div class="col-md-8">
+                <div class="card text-center p-5 error">
+                    <h1 class="text-secondary">You need to login to view this events!</h1>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 <script>
 export default {
     name: 'Task',
     data: function(){
         return {
-            TaskData: [],            
+            TaskData: [],
+            TokenData: false            
         }        
     },
      mounted(){
@@ -56,27 +66,38 @@ export default {
      
      methods: {
         async loadTask(){
-            const res = await fetch('http://127.0.0.1:8000/api/tasks',{
-              method: 'GET',
-              headers: {
-                'Accept': 'application/vnd.api+json',
-                'Content-Type': 'application/vnd.api+json',
-                'Authorization': 'Bearer '+ localStorage.getItem('Bearer-Token')
-              },
-            })
-            const post = await res.json()
-              if(post){
-                console.log(post.data)
-                this.TaskData = post.data;
-                console.log(localStorage.getItem('Bearer-Token'))
-              }else{
-                console.log(post.error)
-              }
+              let Token = JSON.parse(localStorage.getItem('Bearer-Token'));
+              console.log(Token)
+                if(Token === null){
+                    this.TokenData = false;
+                    console.log('wdadwad')
+                }
+                else{
+                    this.TokenData = true;
+                    const res = await fetch('http://127.0.0.1:8000/api/tasks',{
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/vnd.api+json',
+                                'Content-Type': 'application/vnd.api+json',
+                                'Authorization': 'Bearer '+ Token.token
+                            },
+                    })
+                    const post = await res.json()
+                    if(post.message !== undefined){
+                        console.log(post.message) 
+                    }else{
+                       
+                        console.log(Token)
+                        this.TaskData = post.data;
+                    }
+                }
+                
+             
+             
 
         }
      }
-    
-}
+    }
 </script>
 <style scoped>
     ::-webkit-scrollbar{
@@ -105,5 +126,8 @@ export default {
         margin:12px; 
         height: 350px;
         /* height: 520px; */
+    }
+    .error{
+        margin-top: 100px;
     }
 </style>
